@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreCustomerRequest;
+use App\Http\Requests\UpdateCustomerRequest;
 use Illuminate\Support\Facades\Gate;
 
 class CustomerController extends Controller
@@ -30,19 +31,13 @@ class CustomerController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCustomerRequest $request)
     {
         Gate::authorize('create', Customer::class);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers',
-            'address' => 'required|string',
-        ]);
+        Customer::create($request->validated());
 
-        Customer::create($validated);
-
-        return redirect()->route('customers.index')->with('success', 'Customer created.');
+        return redirect()->route('customers.index')->with('success', 'Customer created successfully.');
     }
 
     /**
@@ -65,19 +60,13 @@ class CustomerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Customer $customer)
+    public function update(UpdateCustomerRequest $request, Customer $customer)
     {
         Gate::authorize('update', $customer);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email,' . $customer->id,
-            'address' => 'required|string',
-        ]);
+        $customer->update($request->validated());
 
-        $customer->update($validated);
-
-        return redirect()->route('customers.index')->with('success', 'Customer updated.');
+        return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');
     }
 
     /**

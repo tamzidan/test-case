@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Finance;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreOrderRequest;
+use App\Http\Requests\UpdateOrderRequest;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\DB; // Untuk Transaction
+use Illuminate\Support\Facades\DB;
+
 class OrderController extends Controller
 {
     /**
@@ -33,17 +35,12 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
         Gate::authorize('create', Order::class);
 
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'total_amount' => 'required|numeric|min:0',
-            'status' => 'required|in:pending,completed,cancelled',
-        ]);
-
-        Order::create($validated);
+        // Validasi otomatis jalan sebelum masuk sini
+        Order::create($request->validated());
 
         return redirect()->route('orders.index')->with('success', 'Order created.');
     }
@@ -69,24 +66,18 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Order $order)
+    public function update(UpdateOrderRequest $request, Order $order)
     {
         Gate::authorize('update', $order);
 
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'total_amount' => 'required|numeric|min:0',
-            'status' => 'required|in:pending,completed,cancelled',
-        ]);
+        $validated = $request->validated();
 
-        // BONUS POINT: Database Transaction
         DB::transaction(function () use ($order, $validated) {
-            // Cek jika status berubah jadi 'completed'
+            // Logika Bonus Point: Cek perubahan status
             if ($order->status !== 'completed' && $validated['status'] === 'completed') {
-                // Catat otomatis ke Finance sebagai Income
                 Finance::create([
                     'type' => 'income',
-                    'amount' => $validated['total_amount'],
+                    'amount' => $validated['total_amount'], // Pastikan field ini ada di rules request
                     'description' => 'Payment for Order #' . $order->id,
                     'date' => now(),
                 ]);

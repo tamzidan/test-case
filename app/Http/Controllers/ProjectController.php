@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Project;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
@@ -41,17 +42,13 @@ class ProjectController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request)
     {
         Gate::authorize('create', Project::class);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required',
-            'manager_id' => 'required|exists:users,id',
-            'staff_ids' => 'array', // Array ID staff yang dipilih
-            'staff_ids.*' => 'exists:users,id',
-        ]);
+        // Tidak perlu $request->validate([...]) lagi!
+        // Data yang lolos validasi bisa diambil via $request->validated()
+        $validated = $request->validated();
 
         $project = Project::create([
             'title' => $validated['title'],
@@ -59,7 +56,6 @@ class ProjectController extends Controller
             'manager_id' => $validated['manager_id'],
         ]);
 
-        // Sync data staff (Many-to-Many)
         if (isset($validated['staff_ids'])) {
             $project->staff()->sync($validated['staff_ids']);
         }
@@ -94,16 +90,11 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Project $project)
+    public function update(UpdateProjectRequest $request, Project $project)
     {
         Gate::authorize('update', $project);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required',
-            'manager_id' => 'required|exists:users,id',
-            'staff_ids' => 'array',
-        ]);
+        $validated = $request->validated(); // Otomatis tervalidasi
 
         $project->update([
             'title' => $validated['title'],

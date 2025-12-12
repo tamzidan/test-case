@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\Project;
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use Illuminate\Support\Facades\Gate;
 
 class TaskController extends Controller
@@ -34,18 +35,12 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
         Gate::authorize('create', Task::class);
 
-        $validated = $request->validate([
-            'project_id' => 'required|exists:projects,id',
-            'assigned_to_user_id' => 'nullable|exists:users,id',
-            'title' => 'required|string|max:255',
-            'status' => 'required|string',
-        ]);
-
-        Task::create($validated);
+        // Data otomatis divalidasi oleh StoreTaskRequest
+        Task::create($request->validated());
 
         return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
     }
@@ -72,18 +67,12 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Task $task)
+    public function update(UpdateTaskRequest $request, Task $task)
     {
         Gate::authorize('update', $task);
 
-        $validated = $request->validate([
-            'project_id' => 'required|exists:projects,id',
-            'assigned_to_user_id' => 'nullable|exists:users,id',
-            'title' => 'required|string|max:255',
-            'status' => 'required|string',
-        ]);
-
-        $task->update($validated);
+        // Data otomatis divalidasi oleh UpdateTaskRequest
+        $task->update($request->validated());
 
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -34,16 +35,13 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
         Gate::authorize('create', User::class);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'role' => 'required|exists:roles,name', // Pastikan role ada
-        ]);
+        // TIDAK PERLU VALIDASI MANUAL LAGI
+        // Langsung ambil data yang sudah bersih
+        $validated = $request->validated();
 
         $user = User::create([
             'name' => $validated['name'],
@@ -51,7 +49,6 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // Assign Role Spatie
         $user->assignRole($validated['role']);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
@@ -78,29 +75,24 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
         Gate::authorize('update', $user);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|exists:roles,name',
-            // Password optional saat update
-            'password' => 'nullable|string|min:8',
-        ]);
+        $validated = $request->validated();
 
         $dataToUpdate = [
             'name' => $validated['name'],
             'email' => $validated['email'],
         ];
 
+        // Cek password terpisah karena nullable
         if ($request->filled('password')) {
             $dataToUpdate['password'] = Hash::make($validated['password']);
         }
 
         $user->update($dataToUpdate);
-        $user->syncRoles([$validated['role']]); // Update role
+        $user->syncRoles([$validated['role']]);
 
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Finance;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreFinanceRequest;
+use App\Http\Requests\UpdateFinanceRequest;
 use Illuminate\Support\Facades\Gate;
 
 class FinanceController extends Controller
@@ -30,20 +31,13 @@ class FinanceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreFinanceRequest $request)
     {
         Gate::authorize('create', Finance::class);
 
-        $validated = $request->validate([
-            'type' => 'required|in:income,expense',
-            'amount' => 'required|numeric|min:0',
-            'description' => 'required|string',
-            'date' => 'required|date',
-        ]);
+        Finance::create($request->validated());
 
-        Finance::create($validated);
-
-        return redirect()->route('finances.index')->with('success', 'Record added successfully.');
+        return redirect()->route('finances.index')->with('success', 'Finance record added successfully.');
     }
 
     /**
@@ -66,20 +60,13 @@ class FinanceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Finance $finance)
+    public function update(UpdateFinanceRequest $request, Finance $finance)
     {
         Gate::authorize('update', $finance);
 
-        $validated = $request->validate([
-            'type' => 'required|in:income,expense',
-            'amount' => 'required|numeric|min:0',
-            'description' => 'required|string',
-            'date' => 'required|date',
-        ]);
+        $finance->update($request->validated());
 
-        $finance->update($validated);
-
-        return redirect()->route('finances.index')->with('success', 'Record updated successfully.');
+        return redirect()->route('finances.index')->with('success', 'Finance record updated successfully.');
     }
 
     /**
