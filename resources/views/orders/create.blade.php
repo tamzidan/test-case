@@ -31,11 +31,6 @@
                 </div>
 
                 <div class="mb-3">
-                    <label>Order Date</label>
-                    <input type="date" name="order_date" class="form-control" value="{{ old('order_date', date('Y-m-d')) }}" required>
-                </div>
-
-                <div class="mb-3">
                     <label>Total Amount (Rp)</label>
                     <input type="number" name="total_amount" class="form-control" value="{{ old('total_amount') }}" required min="0">
                 </div>
