@@ -94,7 +94,7 @@ class ProjectController extends Controller
     {
         Gate::authorize('update', $project);
 
-        $validated = $request->validated(); // Otomatis tervalidasi
+        $validated = $request->validated();
 
         $project->update([
             'title' => $validated['title'],
@@ -102,9 +102,7 @@ class ProjectController extends Controller
             'manager_id' => $validated['manager_id'],
         ]);
 
-        if (isset($validated['staff_ids'])) {
-            $project->staff()->sync($validated['staff_ids']);
-        }
+        $project->staff()->sync($request->input('staff_ids', []));
 
         return redirect()->route('projects.index')->with('success', 'Project updated successfully.');
     }
