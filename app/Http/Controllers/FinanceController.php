@@ -43,11 +43,11 @@ class FinanceController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Finance $finance)
     {
-        //
+        Gate::authorize('view', $finance);
+        return view('finances.show', compact('finance'));
     }
-
     /**
      * Show the form for editing the specified resource.
      */

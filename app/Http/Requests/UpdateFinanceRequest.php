@@ -14,7 +14,7 @@ class UpdateFinanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => 'required|in:income,expense',
+            'type' => 'required|in:Income,Expense,income,expense', // Case insensitive handling
             'amount' => 'required|numeric|min:0',
             'description' => 'required|string',
             'date' => 'required|date',
