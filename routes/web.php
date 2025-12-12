@@ -28,6 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('orders', OrderController::class);
     Route::resource('finances', FinanceController::class);
 
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/destroy', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     // Reports (Read Only)
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 });
