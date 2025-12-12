@@ -48,9 +48,10 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Order $order)
     {
-        //
+        Gate::authorize('view', $order);
+        return view('orders.show', compact('order'));
     }
 
     /**
