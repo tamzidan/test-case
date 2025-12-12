@@ -50,8 +50,16 @@
                                 <li class="nav-item"><a class="nav-link" href="{{ route('projects.index') }}">Projects</a></li>
                             @endif
 
+                            @if(Route::has('tasks.index'))
+                                <li class="nav-item"><a class="nav-link" href="{{ route('tasks.index') }}">Tasks</a></li>
+                            @endif
+
                             @if(Route::has('orders.index'))
                                 <li class="nav-item"><a class="nav-link" href="{{ route('orders.index') }}">Orders</a></li>
+                            @endif
+
+                            @if(Route::has('finances.index'))
+                                <li class="nav-item"><a class="nav-link" href="{{ route('finances.index') }}">Finances</a></li>
                             @endif
 
                             @if(Route::has('reports.index'))

@@ -14,10 +14,12 @@ class StoreTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'project_id' => 'required|exists:projects,id',
-            'assigned_to_user_id' => 'nullable|exists:users,id', // Boleh null jika belum ada yang mengerjakan
-            'title' => 'required|string|max:255',
-            'status' => 'required|in:pending,in_progress,completed', // Sesuaikan dengan enum/string di database
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'project_id'  => 'required|exists:projects,id',
+            'status'      => 'required|in:pending,in_progress,completed',
+
+            'assigned_to_user_id' => 'nullable|exists:users,id',
         ];
     }
 }
